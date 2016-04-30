@@ -66,6 +66,15 @@ impl<'a> jack_plugin<'a> {
         let mm = msg as midi::MidiMessage;
         self.plugin.midievent(mm)
     }
+    pub fn set_fs(&mut self) {
+        unsafe {
+            let fs = jack_get_sample_rate(self.client);
+            self.plugin.set_fs(fs as f64);
+        }
+    }
+    pub fn get_amp(&mut self) -> f32 {
+        self.plugin.get_amp()
+    }
 }
 
 // pub trait isJackSynthPlugin: {

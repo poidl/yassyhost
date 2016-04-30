@@ -75,4 +75,6 @@ extern {
     pub fn jack_port_get_buffer(port: *mut jack_port_t,  nframes: u32) -> *mut libc::c_void;
     pub fn jack_midi_get_event_count(port_buffer: *mut ::libc::c_void) -> u32;
     pub fn jack_midi_event_get(event: *mut JackMidiEvent, port_buffer: *mut ::libc::c_void, event_index: u32) -> libc::c_int;
+    pub fn jack_get_sample_rate	(client: *const jack_client_t)	-> u32;
+
 }
