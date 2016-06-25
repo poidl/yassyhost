@@ -10,7 +10,7 @@ mod jack_plugin;
 use jack::*;
 
 use std::time::Duration;
-
+use std::ffi::CString;
 // use std::thread;
 // use websocket::{Server, Message, Sender, Receiver};
 // use websocket::message::Type;
@@ -63,7 +63,8 @@ fn main() {
         let h = jack_client_name_size();
         println!("jack_client_name_size(): {}", h);
     }
-    let mut p = Plugin::new("yass");
+    let name = CString::new("yassyhost").unwrap();
+    let mut p = Plugin::new(&name);
     p.set_fs();
     p.connect();
 

@@ -10,7 +10,7 @@ use jack::*;
 
 #[repr(C)]
 pub struct jack_plugin<'a> {
-    name: &'a str,
+    name: &'a CString,
     pub client: *mut JackClientT,
     pub in_port: Port,
     pub output: Port,
@@ -24,7 +24,7 @@ pub struct Port {
 }
 
 impl<'a> jack_plugin<'a> {
-    pub fn new(hostname: &str) -> jack_plugin {
+    pub fn new(hostname: &CString) -> jack_plugin {
         let mut h = jack_plugin {
             name: hostname,
             client: ptr::null_mut(),
@@ -40,7 +40,8 @@ impl<'a> jack_plugin<'a> {
         };
         let jo = JACK_NULL_OPTION;
         let js = JACK_NULL_STATUS;
-        let nameptr = CString::new(h.name).unwrap().as_ptr();
+        // let cstr = CString::new(h.name).unwrap();
+        let nameptr = h.name.as_ptr();
         unsafe {
             h.client = jack_client_open(nameptr, jo, &js);
         }
@@ -52,19 +53,19 @@ impl<'a> jack_plugin<'a> {
     }
     pub fn connect(&mut self) {
         unsafe {
-            let portname = CString::new("midi_in").unwrap().as_ptr();
-            let porttype = CString::new("8 bit raw midi").unwrap().as_ptr();
+            let portname = CString::new("midi_in").unwrap();
+            let porttype = CString::new("8 bit raw midi").unwrap();
             self.in_port.handle = jack_port_register(self.client,
-                                                     portname,
-                                                     porttype,
+                                                     portname.as_ptr(),
+                                                     porttype.as_ptr(),
                                                      JACK_PORT_IS_INPUT,
                                                      32768u64);
 
-            let portname = CString::new("audio_out").unwrap().as_ptr();
-            let porttype = CString::new("32 bit float mono audio").unwrap().as_ptr();
+            let portname = CString::new("audio_out").unwrap();
+            let porttype = CString::new("32 bit float mono audio").unwrap();
             self.output.handle = jack_port_register(self.client,
-                                                    portname,
-                                                    porttype,
+                                                    portname.as_ptr(),
+                                                    porttype.as_ptr(),
                                                     JACK_PORT_IS_OUTPUT,
                                                     32768u64);
         }
