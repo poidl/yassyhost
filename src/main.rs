@@ -57,10 +57,14 @@ extern "C" fn process(jack_nframes_t: u32, ptr: *mut libc::c_void) -> isize {
 pub type Plugin<'a> = jack_plugin::jack_plugin<'a>;
 
 fn main() {
-
-    // read this: http://stackoverflow.com/questions/38007154/jack-audio-client-name-longer-than-4-characters-breaks-client
+    // CString must stay alive after pointer is obtained
+    // see http://stackoverflow.com/questions/38007154/jack-audio-client-name-longer-than-4-characters-breaks-client
     let name = CString::new("yassyhost").unwrap();
     let mut p = Plugin::new(&name);
+    p.initialize();
+    unsafe {
+        println!("Current vol: {}", *(p.plugin.params[0]));
+    }
     p.set_fs();
     p.connect();
 
@@ -68,6 +72,7 @@ fn main() {
     unsafe {
         jack_set_process_callback(p.client, process, cbpluginptr);
         jack_activate(p.client);
+        println!("Current vol: {}", *(p.plugin.params[0]));
         let five = Duration::new(1000, 0);
         loop {
             println!("fiveeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");

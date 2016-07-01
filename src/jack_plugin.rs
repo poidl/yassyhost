@@ -15,8 +15,8 @@ pub struct jack_plugin<'a> {
     pub client: *mut JackClientT,
     pub in_port: Port,
     pub output: Port,
-    plugin: plugin::SynthPlugin, /*     pub output: *mut f32,
-                                  * ports: &'a [Port] */
+    pub plugin: plugin::SynthPlugin, /*     pub output: *mut f32,
+                                      * ports: &'a [Port] */
     param_values: [f32; 1],
 }
 
@@ -41,7 +41,6 @@ impl<'a> jack_plugin<'a> {
             plugin: plugin::SynthPlugin::new(),
             param_values: [0.5f32],
         };
-        h.plugin.params[plugin::ParamName::Gain as usize] = &mut h.param_values[0];
 
         let jo = JACK_NULL_OPTION;
         let js = JACK_NULL_STATUS;
@@ -55,6 +54,11 @@ impl<'a> jack_plugin<'a> {
             // TODO return error
         };
         h
+    }
+    pub fn initialize(&mut self) {
+        // Cannot initialize parameter pointers in new(), since they
+        // point to memory local to the stack of new()!!
+        self.plugin.params[plugin::ParamName::Gain as usize] = &mut self.param_values[0];
     }
     pub fn connect(&mut self) {
         unsafe {
@@ -85,10 +89,7 @@ impl<'a> jack_plugin<'a> {
             let x = mm.cc_type();
             unsafe {
                 match x {
-
                     midi::cckind::channelvolume => {
-                        println!("ADDJUSTING VOLUMEEEEEEEEE {}",
-                                 *(self.plugin.params[plugin::ParamName::Gain as usize]));
                         *(self.plugin.params[plugin::ParamName::Gain as usize]) = mm.cc_value()
                     }
                     _ => println!("Don't understand cc midi message", ),
