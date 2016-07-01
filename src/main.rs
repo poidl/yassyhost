@@ -25,6 +25,8 @@ use std::ffi::CString;
 // use yassy::Plugin;
 
 
+
+
 extern "C" fn process(jack_nframes_t: u32, ptr: *mut libc::c_void) -> isize {
     unsafe {
         let plugin = ptr as *mut Plugin;
@@ -43,7 +45,6 @@ extern "C" fn process(jack_nframes_t: u32, ptr: *mut libc::c_void) -> isize {
 
         let ievent = 0;
         jack_midi_event_get(&mut event, buf, ievent);
-        // println!("jack_frames_t: {}", jack_nframes_t);
         for i in 0..jack_nframes_t {
             if (event.time == i) & (ievent < event_count) {
                 (*plugin).midievent(&*event.buffer);
@@ -63,6 +64,7 @@ fn main() {
         let h = jack_client_name_size();
         println!("jack_client_name_size(): {}", h);
     }
+    // read this: http://stackoverflow.com/questions/38007154/jack-audio-client-name-longer-than-4-characters-breaks-client
     let name = CString::new("yassyhost").unwrap();
     let mut p = Plugin::new(&name);
     p.set_fs();

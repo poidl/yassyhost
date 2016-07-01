@@ -4,6 +4,7 @@ use std::ffi::CString;
 use std::ptr;
 // use plugin;
 use midi;
+use midi::*;
 use yassy::plugin;
 use std::str;
 use jack::*;
@@ -59,7 +60,7 @@ impl<'a> jack_plugin<'a> {
                                                      portname.as_ptr(),
                                                      porttype.as_ptr(),
                                                      JACK_PORT_IS_INPUT,
-                                                     32768u64);
+                                                     0u64);
 
             let portname = CString::new("audio_out").unwrap();
             let porttype = CString::new("32 bit float mono audio").unwrap();
@@ -67,13 +68,35 @@ impl<'a> jack_plugin<'a> {
                                                     portname.as_ptr(),
                                                     porttype.as_ptr(),
                                                     JACK_PORT_IS_OUTPUT,
-                                                    32768u64);
+                                                    0u64);
         }
     }
     pub fn midievent(&mut self, msg: &u8) {
         let mm = msg as midi::MidiMessage;
-        self.plugin.midievent(mm)
+        if mm.noteon() {
+            self.plugin.noteon(mm.f0(), mm.vel())
+        } else if mm.noteoff() {
+            self.plugin.noteoff();
+        } else if mm.cc() {
+            let x = mm.cc_type();
+            unsafe {
+                match x {
+                    midi::cckind::channelvolume => {
+                        *(self.plugin.params[plugin::ParamName::Gain as usize]) = mm.cc_value()
+                    }
+                    _ => println!("Don't understand cc midi message", ),
+                }
+            }
+            println!("ccnr: {}", mm.ccnr());
+            println!("ccval: {}", mm.ccval());
+        } else {
+            println!("Don't understand midi message", );
+        }
     }
+    // pub fn midievent(&mut self, msg: &u8) {
+    //     let mm = msg as midi::MidiMessage;
+    //     self.plugin.midievent(mm)
+    // }
     pub fn set_fs(&mut self) {
         unsafe {
             let fs = jack_get_sample_rate(self.client);
