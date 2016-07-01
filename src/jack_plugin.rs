@@ -17,6 +17,7 @@ pub struct jack_plugin<'a> {
     pub output: Port,
     plugin: plugin::SynthPlugin, /*     pub output: *mut f32,
                                   * ports: &'a [Port] */
+    param_values: [f32; 1],
 }
 
 pub struct Port {
@@ -38,7 +39,10 @@ impl<'a> jack_plugin<'a> {
                 data: ptr::null_mut(),
             },
             plugin: plugin::SynthPlugin::new(),
+            param_values: [0.5f32],
         };
+        h.plugin.params[plugin::ParamName::Gain as usize] = &mut h.param_values[0];
+
         let jo = JACK_NULL_OPTION;
         let js = JACK_NULL_STATUS;
         // let cstr = CString::new(h.name).unwrap();
@@ -81,7 +85,10 @@ impl<'a> jack_plugin<'a> {
             let x = mm.cc_type();
             unsafe {
                 match x {
+
                     midi::cckind::channelvolume => {
+                        println!("ADDJUSTING VOLUMEEEEEEEEE {}",
+                                 *(self.plugin.params[plugin::ParamName::Gain as usize]));
                         *(self.plugin.params[plugin::ParamName::Gain as usize]) = mm.cc_value()
                     }
                     _ => println!("Don't understand cc midi message", ),

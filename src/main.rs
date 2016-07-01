@@ -24,9 +24,6 @@ use std::ffi::CString;
 // use jack_plugin;
 // use yassy::Plugin;
 
-
-
-
 extern "C" fn process(jack_nframes_t: u32, ptr: *mut libc::c_void) -> isize {
     unsafe {
         let plugin = ptr as *mut Plugin;
@@ -60,10 +57,7 @@ extern "C" fn process(jack_nframes_t: u32, ptr: *mut libc::c_void) -> isize {
 pub type Plugin<'a> = jack_plugin::jack_plugin<'a>;
 
 fn main() {
-    unsafe {
-        let h = jack_client_name_size();
-        println!("jack_client_name_size(): {}", h);
-    }
+
     // read this: http://stackoverflow.com/questions/38007154/jack-audio-client-name-longer-than-4-characters-breaks-client
     let name = CString::new("yassyhost").unwrap();
     let mut p = Plugin::new(&name);
@@ -74,8 +68,9 @@ fn main() {
     unsafe {
         jack_set_process_callback(p.client, process, cbpluginptr);
         jack_activate(p.client);
-        let five = Duration::new(5, 0);
+        let five = Duration::new(1000, 0);
         loop {
+            println!("fiveeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
             std::thread::sleep(five);
         }
         // jack_port_unregister(p.client, p.in_port.handle);

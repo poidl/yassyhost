@@ -92,6 +92,6 @@ extern "C" {
                                event_index: u32)
                                -> libc::c_int;
     pub fn jack_get_sample_rate(client: *const JackClientT) -> u32;
-    // pub fn jack_client_close(client: *const JackClientT) -> u32;
-    pub fn jack_client_name_size() -> u32;
+// pub fn jack_client_close(client: *const JackClientT) -> u32;
+// pub fn jack_client_name_size() -> u32;
 }
