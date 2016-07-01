@@ -46,8 +46,8 @@ extern "C" fn process(jack_nframes_t: u32, ptr: *mut libc::c_void) -> isize {
             if (event.time == i) & (ievent < event_count) {
                 (*plugin).midievent(&*event.buffer);
                 ievent = ievent + 1;
-                // Do I need to check if ievent < event_count now?
-                // Don't think so, but see 
+                // Need to check if ievent < event_count before next call to
+                // jack_midi_event_get()? Don't think so, but see
                 // https://github.com/jackaudio/example-clients/blob/master/midisine.c
                 jack_midi_event_get(&mut event, buf, ievent);
             }
