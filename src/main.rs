@@ -40,11 +40,15 @@ extern "C" fn process(jack_nframes_t: u32, ptr: *mut libc::c_void) -> isize {
             buffer: std::ptr::null_mut() as *mut libc::c_uchar,
         };
 
-        let ievent = 0;
+        let mut ievent = 0;
         jack_midi_event_get(&mut event, buf, ievent);
         for i in 0..jack_nframes_t {
             if (event.time == i) & (ievent < event_count) {
                 (*plugin).midievent(&*event.buffer);
+                ievent = ievent + 1;
+                // Do I need to check if ievent < event_count now?
+                // Don't think so, but see 
+                // https://github.com/jackaudio/example-clients/blob/master/midisine.c
                 jack_midi_event_get(&mut event, buf, ievent);
             }
             let amp = (*plugin).get_amp();

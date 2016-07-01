@@ -80,6 +80,7 @@ impl<'a> jack_plugin<'a> {
         }
     }
     pub fn midievent(&mut self, msg: &u8) {
+
         let mm = msg as midi::MidiMessage;
         if mm.noteon() {
             self.plugin.noteon(mm.f0(), mm.vel())
