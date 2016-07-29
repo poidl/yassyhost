@@ -1,5 +1,1 @@
-# yassyhost
-
-A beginner's programming exercise in Rust.
-
-Jack audio host for yassy
+moved to yassy/ for easier version control
