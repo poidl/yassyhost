@@ -1,1 +1,1 @@
-moved to yassy/ for easier version control
+moved to project yassy for easier version control
